@@ -1,0 +1,68 @@
+.upload-container {
+  min-height: 100vh;
+  background: #f7fafd;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.upload-card {
+  background: #fff;
+  padding: 2.5rem 2rem;
+  border-radius: 18px;
+  box-shadow: 0 6px 32px rgba(87, 119, 167, 0.10);
+  min-width: 450px;
+}
+
+.upload-title {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #14171c;
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.file-upload-box {
+  background: #f3f7fb;
+  border: 2px dashed #e2e8f7;
+  border-radius: 12px;
+  padding: 1.5rem;
+  text-align: center;
+  margin-bottom: 1.2rem;
+}
+
+.file-label {
+  font-weight: 600;
+  color: #153246;
+  margin-bottom: 0.75rem;
+}
+
+.upload-btn {
+  margin: 1.5rem 0 0;
+  background: #0dcaf0;
+  color: #fff;
+  font-size: 1.05rem;
+  font-weight: bold;
+  padding: 0.7rem 0;
+  border: none;
+  border-radius: 8px;
+  width: 100%;
+  cursor: pointer;
+}
+
+.sign-up-bar {
+  font-size: 1rem;
+  align-items: right;
+  text-align: right;
+  color: #7a869a;
+}
+
+.uploaded-file-name {
+  background-color: #e4f5fc;
+  color: #0575e6;
+  font-size: 1rem;
+  padding: 0.25rem 1rem;
+  border-radius: 8px;
+  margin-top: 0.4rem;
+}

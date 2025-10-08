@@ -1,0 +1,83 @@
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
+import './css/UploadForm.css';
+
+const UploadForm: React.FC = () => {
+  const [jdFile, setJdFile] = useState<File | null>(null);
+  const [resumeFile, setResumeFile] = useState<File | null>(null);
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+
+  const uploadFile = async (endpoint: string, file: File) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    return axios.post(`http://localhost:8000/${endpoint}`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+  };
+
+  const handleProcess = async () => {
+    if (!jdFile || !resumeFile) {
+      alert('Please upload both JD and Resume!');
+      return;
+    }
+    setLoading(true);
+    try {
+      await uploadFile('jd/upload/', jdFile);
+      await uploadFile('resume/upload/', resumeFile);
+      const response = await axios.get('http://localhost:8000/process/process/');
+      const resultText = response.data.combined_text;
+      // Navigate to Result page with result data
+      navigate('/result', { state: { result: resultText } });
+    } catch (error: any) {
+      alert(error.response?.data?.error || 'Error processing files.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="upload-container">
+      <div className="upload-card">
+        <h2 className="upload-title">Upload Your Documents</h2>
+        <p style={{ textAlign: 'center', marginBottom: '1.5rem', color: '#7a869a' }}>
+          Let our AI analyze your resume against the job description.
+        </p>
+        <div className="file-uploads">
+          <div className="file-upload-box">
+            <label className="file-label">Your Resume</label>
+            <input
+              type="file"
+              accept=".pdf,.docx"
+              onChange={(e) => setResumeFile(e.target.files?.[0] || null)}
+            />
+            {resumeFile && (
+              <div className="uploaded-file-name">{resumeFile.name}</div>
+            )}
+          </div>
+          <div className="file-upload-box">
+            <label className="file-label">Job Description</label>
+            <input
+              type="file"
+              accept=".pdf,.docx"
+              onChange={(e) => setJdFile(e.target.files?.[0] || null)}
+            />
+            {jdFile && (
+              <div className="uploaded-file-name">{jdFile.name}</div>
+            )}
+          </div>
+        </div>
+        <button
+          className="upload-btn"
+          onClick={handleProcess}
+          disabled={loading}
+        >
+          {loading ? 'Processing...' : 'Analyze Now'}
+        </button>
+      </div>
+    </div>
+  );
+};
+
+export default UploadForm;
