@@ -17,6 +17,8 @@ const UploadForm: React.FC = () => {
     });
   };
 
+  
+
   const handleProcess = async () => {
     if (!jdFile || !resumeFile) {
       alert('Please upload both JD and Resume!');
@@ -39,9 +41,6 @@ const UploadForm: React.FC = () => {
       setLoading(false);
     }
   };
-
-
-
 
   return (
     <div className="upload-container">

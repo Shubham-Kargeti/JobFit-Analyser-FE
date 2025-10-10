@@ -1,4 +1,4 @@
-.upload-container {
+/* .upload-container {
   min-height: 100vh;
   background: #f7fafd;
   display: flex;
@@ -65,4 +65,122 @@
   padding: 0.25rem 1rem;
   border-radius: 8px;
   margin-top: 0.4rem;
+} */
+/* UploadForm.css */
+
+.upload-container {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #eef3fb, #f9fcff);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 2rem;
+  font-family: 'Inter', sans-serif;
+}
+
+.upload-card {
+  background: #ffffff;
+  padding: 2.8rem 2.2rem;
+  border-radius: 16px;
+  box-shadow: 0 10px 45px rgba(0, 0, 0, 0.08);
+  width: 100%;
+  max-width: 480px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.upload-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 50px rgba(0, 0, 0, 0.12);
+}
+
+.upload-title {
+  font-size: 1.65rem;
+  font-weight: 700;
+  color: #1a1d23;
+  text-align: center;
+  margin-bottom: 1rem;
+  letter-spacing: 0.3px;
+}
+
+.upload-card p {
+  text-align: center;
+  color: #6c7b8b;
+  font-size: 0.95rem;
+  margin-bottom: 2rem;
+}
+
+.file-uploads {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+}
+
+.file-upload-box {
+  background: #f8fbff;
+  border: 2px dashed #cfe0f5;
+  border-radius: 10px;
+  padding: 1.5rem;
+  text-align: center;
+  transition: all 0.25s ease-in-out;
+}
+
+.file-upload-box:hover {
+  background: #f1f8ff;
+  border-color: #9cc8fc;
+}
+
+.file-label {
+  display: block;
+  font-weight: 600;
+  color: #183a59;
+  margin-bottom: 0.75rem;
+  font-size: 1rem;
+}
+
+input[type="file"] {
+  cursor: pointer;
+  color: #4b637a;
+  font-size: 0.95rem;
+}
+
+.uploaded-file-name {
+  background-color: #e6f5ff;
+  color: #0563c1;
+  font-size: 0.9rem;
+  padding: 0.4rem 0.8rem;
+  border-radius: 6px;
+  margin-top: 0.5rem;
+  display: inline-block;
+  font-weight: 500;
+}
+
+.upload-btn {
+  margin-top: 1.8rem;
+  background: linear-gradient(135deg, #0563c1, #0dcaf0);
+  color: #fff;
+  font-size: 1.05rem;
+  font-weight: 600;
+  padding: 0.75rem;
+  border: none;
+  border-radius: 10px;
+  width: 100%;
+  cursor: pointer;
+  transition: background 0.3s ease, transform 0.2s ease;
+}
+
+.upload-btn:hover {
+  background: linear-gradient(135deg, #0ca5dd, #0585d3);
+  transform: translateY(-2px);
+}
+
+.upload-btn:disabled {
+  background: #bed4e2;
+  cursor: not-allowed;
+}
+
+.sign-up-bar {
+  font-size: 0.95rem;
+  text-align: right;
+  color: #7a869a;
+  margin-top: 1rem;
 }

@@ -1,4 +1,5 @@
-import React, { useRef} from 'react';
+
+import React, { useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { downloadElementAsPDF } from '../utils/downloadPdf';
 import './css/Result.css';
@@ -9,9 +10,7 @@ const Result: React.FC = () => {
   const resultData = location.state?.resultData;
   const resultRef = useRef<HTMLDivElement>(null);
 
-
   const handleBackToUpload = () => navigate('/upload');
-
   const handleDownloadPDF = () => {
     if (resultRef.current) {
       downloadElementAsPDF(resultRef.current, 'analysis-result.pdf');
@@ -23,9 +22,11 @@ const Result: React.FC = () => {
       <div className="result-container">
         <div className="result-card">
           <h2 className="analysis-title">No Results Available</h2>
-          <button className="another-btn" onClick={handleBackToUpload}>
-            Analyze Another Pair
-          </button>
+          <div className="action-buttons">
+            <button className="secondary-btn" onClick={handleBackToUpload}>
+              Analyze Another Pair
+            </button>
+          </div>
         </div>
       </div>
     );
@@ -33,7 +34,11 @@ const Result: React.FC = () => {
 
   return (
     <div className="result-container">
-      <div className="result-card" ref={resultRef} style={{ overflowWrap: 'break-word' }}>
+      <div
+        className="result-card"
+        ref={resultRef}
+        style={{ overflowWrap: 'break-word' }}
+      >
         <h2 className="analysis-title">Analysis Results</h2>
 
         <div className="score-circle" style={{ marginBottom: '1.5rem' }}>
@@ -91,7 +96,10 @@ const Result: React.FC = () => {
             <ul>
               {resultData.Suggested_Questions.map((q: any, idx: number) => (
                 <li key={idx}>
-                  {q.question} <small style={{ color: '#888' }}>({q.score?.toFixed(2)})</small>
+                  {q.question}{' '}
+                  <small style={{ color: '#888' }}>
+                    ({q.score?.toFixed(2)})
+                  </small>
                 </li>
               ))}
             </ul>
@@ -103,7 +111,7 @@ const Result: React.FC = () => {
         <div className="matches-block">
           <h3>Grammatical Errors</h3>
           {resultData.Grammatical_Errors?.length ? (
-            <table className="result-table">
+            <table className="result-table single-column">
               <thead>
                 <tr>
                   <th>Context</th>
@@ -125,7 +133,7 @@ const Result: React.FC = () => {
         <div className="matches-block">
           <h3>Spelling Mistakes</h3>
           {resultData.Spelling_Mistakes?.length ? (
-            <table className="result-table">
+            <table className="result-table single-column">
               <thead>
                 <tr>
                   <th>Mistakes</th>
@@ -147,7 +155,7 @@ const Result: React.FC = () => {
         <div className="matches-block">
           <h3>Client Name Detection</h3>
           {resultData.Client_Names?.length ? (
-            <table className="result-table">
+            <table className="result-table single-column">
               <thead>
                 <tr>
                   <th>Client/Organization Names</th>
@@ -167,13 +175,15 @@ const Result: React.FC = () => {
         </div>
       </div>
 
-      <button className="another-btn" onClick={handleDownloadPDF}>
-        Download as PDF
-      </button>
-
-      <button className="another-btn" onClick={handleBackToUpload}>
-        Analyze Another Pair
-      </button>
+      {/* New attractive button layout */}
+      <div className="action-buttons">
+        <button className="primary-btn" onClick={handleDownloadPDF}>
+          Download as PDF
+        </button>
+        <button className="secondary-btn" onClick={handleBackToUpload}>
+          Analyze Another Pair
+        </button>
+      </div>
     </div>
   );
 };
