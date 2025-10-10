@@ -27,15 +27,21 @@ const UploadForm: React.FC = () => {
       await uploadFile('jd/upload/', jdFile);
       await uploadFile('resume/upload/', resumeFile);
       const response = await axios.get('http://localhost:8000/process/process/');
-      const resultText = response.data.combined_text;
-      // Navigate to Result page with result data
-      navigate('/result', { state: { result: resultText } });
+      // Pass resultData as is, no further transformations needed:
+
+      const resultData = typeof response.data === 'string' ? JSON.parse(response.data) : response.data;
+      navigate('/result', { state: { resultData } });
+
+      // navigate('/result', { state: { resultData: response.data } });
     } catch (error: any) {
       alert(error.response?.data?.error || 'Error processing files.');
     } finally {
       setLoading(false);
     }
   };
+
+
+
 
   return (
     <div className="upload-container">

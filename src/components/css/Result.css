@@ -83,3 +83,22 @@
   margin-top: 16px;
   width: 100%;
 }
+
+.result-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1rem 0;
+  font-size: 1rem;
+}
+
+.result-table th, .result-table td {
+  padding: 0.4rem 0.7rem;
+  border: 1px solid #d1d5db;
+  text-align: left;
+  background: #f7fafd;
+}
+
+.result-table th {
+  background: #ecf4fb;
+  font-weight: 700;
+}
