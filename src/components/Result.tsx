@@ -39,7 +39,6 @@ const Result: React.FC = () => {
     );
   }
 
-  // Score parsing and circles
   const parseScore = (scoreStr: string) => {
     if (!scoreStr) return 0;
     const match = scoreStr.match(/^(\d+(\.\d+)?)/);
@@ -62,7 +61,7 @@ const Result: React.FC = () => {
   const gapsColor = gapsDetected ? '#f59e42' : '#22c55e';
   const gapsLabel = gapsDetected ? 'Key Gaps Detected!' : 'No Key Gaps';
 
-  const grammarDetected = 
+  const grammarDetected =
     (Array.isArray(resultData.Grammatical_Errors) && resultData.Grammatical_Errors.length > 0) ||
     (Array.isArray(resultData.Spelling_Mistakes) && resultData.Spelling_Mistakes.length > 0);
   const grammarPercent = grammarDetected ? 100 : 0;
@@ -72,14 +71,22 @@ const Result: React.FC = () => {
   return (
     <div className="result-container">
       <div className="result-card" ref={resultRef} style={{ overflowWrap: 'break-word' }}>
-        <h2 className="analysis-title">Analysis Results</h2>
+        <div className="result-header">
+          <h2 className="analysis-title">
+            <span role="img" aria-label="analytics" style={{
+              fontSize: "2.1rem",
+              verticalAlign: "middle",
+              marginRight: "0.7rem"
+            }}>📊</span>
+            <span className="gradient-text">Analysis Results</span>
+          </h2>
+        </div>
 
         {/* Circles row */}
         <div
           className="score-circles-row"
           style={{ display: 'flex', justifyContent: 'center', alignItems: 'flex-end', gap: '2.5rem', marginBottom: '2.1rem' }}
         >
-          {/* Compatibility */}
           <div style={{ width: 210, height: 210, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
             <CircularProgressbar
               value={scorePercent}
@@ -97,7 +104,7 @@ const Result: React.FC = () => {
               {label}
             </div>
           </div>
-          {/* Key Gaps */}
+
           <div style={{ width: 165, height: 165, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
             <CircularProgressbar
               value={gapsPercent}
@@ -114,7 +121,7 @@ const Result: React.FC = () => {
               {gapsLabel}
             </div>
           </div>
-          {/* Grammar error */}
+
           <div style={{ width: 165, height: 165, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
             <CircularProgressbar
               value={grammarPercent}
@@ -133,7 +140,7 @@ const Result: React.FC = () => {
           </div>
         </div>
 
-        <p style={{ textAlign: "center", color: "#6b7280", fontSize: "0.98rem", marginTop: "0.13rem", marginBottom: "2rem" }}>
+        <p style={{textAlign: "center", fontSize: "0.98rem", marginTop: "0.13rem", marginBottom: "2rem", color: "#6b7280" }}>
           The compatibility score reflects the alignment of values, goals, and working styles.
         </p>
 
@@ -155,7 +162,7 @@ const Result: React.FC = () => {
             aria-expanded={showTechnical}
             aria-label="Toggle more technical explanation"
           >
-            {showTechnical ? 'Hide Details ▲' : 'More Info ▼'}
+            {showTechnical ? 'Hide Details ▲' : 'Technical Details ▼'}
           </button>
           {showTechnical && (
             <div style={{ marginTop: '0.5rem', color: '#475569', whiteSpace: 'pre-wrap' }}>
@@ -177,6 +184,7 @@ const Result: React.FC = () => {
               <p>No strong matches detected.</p>
             )}
           </div>
+
           <div className="gaps-block">
             <h3>Key Gaps</h3>
             {Array.isArray(resultData.Key_Gaps) && resultData.Key_Gaps.length ? (
