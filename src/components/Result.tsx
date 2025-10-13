@@ -296,23 +296,25 @@ const Result: React.FC = () => {
                 <p className="empty-state">No recommendations needed.</p>
               )}
             </InfoCard>
-
-            {/* Interview Questions */}
-            <InfoCard icon="🎤" title="Suggested Interview Questions" color="#5f76ff">
-              {suggestedQuestions.length ? (
-                <ul className="details-list">
-                  {suggestedQuestions.map((q: string, idx: number) => (
-                    <li key={idx}>
-                      <span style={{ marginRight: 7 }}>❓</span>
-                      <span>{q}</span>
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <p className="empty-state">No questions found.</p>
-              )}
-            </InfoCard>
           </div>
+        </div>
+
+        {/* Full-width suggested questions below grid */}
+        <div className="suggested-questions-wide" style={{ marginTop: "2rem" }}>
+          <InfoCard icon="🎤" title="Suggested Interview Questions" color="#5f76ff">
+            {suggestedQuestions.length ? (
+              <ul className="details-list">
+                {suggestedQuestions.map((q: string, idx: number) => (
+                  <li key={idx}>
+                    <span style={{ marginRight: 7 }}>❓</span>
+                    <span>{q}</span>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="empty-state">No questions found.</p>
+            )}
+          </InfoCard>
         </div>
 
         <div className="action-buttons" style={{ marginTop: 32 }}>
