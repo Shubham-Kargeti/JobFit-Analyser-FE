@@ -1,9 +1,26 @@
-import React, { useRef, useState, useEffect } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
-import { downloadElementAsPDF } from '../utils/downloadPdf';
-import './css/Result.css';
-import { CircularProgressbar, buildStyles } from 'react-circular-progressbar';
-import 'react-circular-progressbar/dist/styles.css';
+import React, { useRef, useState, useEffect } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import { downloadElementAsPDF } from "../utils/downloadPdf";
+import "./css/Result.css";
+import { CircularProgressbar, buildStyles } from "react-circular-progressbar";
+import "react-circular-progressbar/dist/styles.css";
+
+type InfoCardProps = {
+  icon: React.ReactNode;
+  title: string;
+  color?: string;
+  children: React.ReactNode;
+};
+
+const InfoCard: React.FC<InfoCardProps> = ({ icon, title, color, children }) => (
+  <div className="info-card" style={color ? { borderLeft: `5px solid ${color}` } : {}}>
+    <div className="info-card-title">
+      <span className="icon">{icon}</span>
+      <span>{title}</span>
+    </div>
+    {children}
+  </div>
+);
 
 const Result: React.FC = () => {
   const location = useLocation();
@@ -11,16 +28,16 @@ const Result: React.FC = () => {
   const resultRef = useRef<HTMLDivElement>(null);
   const [showTechnical, setShowTechnical] = useState(false);
 
-  const resultData = location.state?.resultData;
+  const resultData = location.state?.resultData || {};
 
   useEffect(() => {
     console.log("Result Data:", resultData);
   }, [resultData]);
 
-  const handleBackToUpload = () => navigate('/upload');
+  const handleBackToUpload = () => navigate("/upload");
   const handleDownloadPDF = () => {
     if (resultRef.current) {
-      downloadElementAsPDF(resultRef.current, 'analysis-result.pdf');
+      downloadElementAsPDF(resultRef.current, "analysis-result.pdf");
     }
   };
 
@@ -39,6 +56,7 @@ const Result: React.FC = () => {
     );
   }
 
+  // Circles/score
   const parseScore = (scoreStr: string) => {
     if (!scoreStr) return 0;
     const match = scoreStr.match(/^(\d+(\.\d+)?)/);
@@ -46,263 +64,265 @@ const Result: React.FC = () => {
   };
   const rawScore = parseScore(resultData.JD_MatchScore);
   const scorePercent = Math.min(100, Math.max(0, Math.round((rawScore / 10) * 100)));
-  let ringColor = '#f87171';
-  let label = 'Low Compatibility';
+  let ringColor = "#f87171";
+  let label = "Low Compatibility";
   if (rawScore >= 7.5) {
-    ringColor = '#22c55e';
-    label = 'High Compatibility';
+    ringColor = "#22c55e";
+    label = "High Compatibility";
   } else if (rawScore >= 5) {
-    ringColor = '#facc15';
-    label = 'Moderate Compatibility';
+    ringColor = "#facc15";
+    label = "Moderate Compatibility";
   }
 
   const gapsDetected = Array.isArray(resultData.Key_Gaps) && resultData.Key_Gaps.length > 0;
   const gapsPercent = gapsDetected ? 100 : 0;
-  const gapsColor = gapsDetected ? '#f59e42' : '#22c55e';
-  const gapsLabel = gapsDetected ? 'Key Gaps Detected!' : 'No Key Gaps';
+  const gapsColor = "#ffbd2f";
+  const gapsLabel = gapsDetected ? "Key Gaps Detected!" : "No Key Gaps";
 
   const grammarDetected =
     (Array.isArray(resultData.Grammatical_Errors) && resultData.Grammatical_Errors.length > 0) ||
     (Array.isArray(resultData.Spelling_Mistakes) && resultData.Spelling_Mistakes.length > 0);
+
   const grammarPercent = grammarDetected ? 100 : 0;
-  const grammarColor = grammarDetected ? '#e11d48' : '#22c55e';
-  const grammarLabel = grammarDetected ? 'Grammar Error!' : 'No Grammar Error';
+  const grammarColor = grammarDetected ? "#e43838" : "#38e44c";
+  const grammarLabel = grammarDetected ? "Grammar Error!" : "No Grammar Error";
+
+  // Remove all content between ** and **, including the markers themselves
+  const suggestedQuestionsTextRaw = resultData.Suggested_Questions || "";
+  const suggestedQuestionsText = suggestedQuestionsTextRaw.replace(/\*\*([^*]+)\*\*/g, "");
+
+  const suggestedQuestions = suggestedQuestionsText
+    .split('\n')
+    .map((q: string) => q.trim())
+    .filter((q: string) =>
+      q.startsWith('- ') ||
+      q.startsWith('*') ||
+      /^\d+\./.test(q)
+    )
+    .map((q: string) =>
+      q.replace(/^(-|\*)\s*/, '')   // remove leading bullet or asterisk
+       .replace(/^\d+\.\s*/, '')    // remove leading numbered list
+       .replace(/[*_]+/g, '')       // remove stray markdown
+       .replace(/^\u201c?/, '')     // remove leading curly quote
+       .replace(/\u201d?"?$/, '')   // remove closing curly/straight quote
+       .trim()
+    )
+    .filter((q: string) => q.length > 0);
 
   return (
     <div className="result-container">
-      <div className="result-card" ref={resultRef} style={{ overflowWrap: 'break-word' }}>
-        <div className="result-header">
-          <h2 className="analysis-title">
-            <span role="img" aria-label="analytics" style={{
-              fontSize: "2.1rem",
-              verticalAlign: "middle",
-              marginRight: "0.7rem"
-            }}>📊</span>
-            <span className="gradient-text">Analysis Results</span>
-          </h2>
-        </div>
-
-        {/* Circles row */}
-        <div
-          className="score-circles-row"
-          style={{ display: 'flex', justifyContent: 'center', alignItems: 'flex-end', gap: '2.5rem', marginBottom: '2.1rem' }}
-        >
-          <div style={{ width: 210, height: 210, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-            <CircularProgressbar
-              value={scorePercent}
-              text={`${rawScore}/10`}
-              styles={buildStyles({
-                textColor: "#1e293b",
-                pathColor: ringColor,
-                trailColor: "#e0e6ed",
-                textSize: '1.9rem',
-                pathTransitionDuration: 0.7
-              })}
-              strokeWidth={18}
-            />
-            <div style={{ textAlign: "center", marginTop: '0.45rem', color: ringColor, fontWeight: 600, fontSize: '1.04rem' }}>
-              {label}
-            </div>
-          </div>
-
-          <div style={{ width: 165, height: 165, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-            <CircularProgressbar
-              value={gapsPercent}
-              text={gapsDetected ? "!" : "✓"}
-              styles={buildStyles({
-                textColor: "#1e293b",
-                pathColor: gapsColor,
-                trailColor: "#e0e6ed",
-                textSize: '1.5rem'
-              })}
-              strokeWidth={10}
-            />
-            <div style={{ textAlign: "center", marginTop: '0.45rem', color: gapsColor, fontWeight: 600, fontSize: '1.04rem' }}>
-              {gapsLabel}
-            </div>
-          </div>
-
-          <div style={{ width: 165, height: 165, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-            <CircularProgressbar
-              value={grammarPercent}
-              text={grammarDetected ? "!" : "✓"}
-              styles={buildStyles({
-                textColor: "#1e293b",
-                pathColor: grammarColor,
-                trailColor: "#e0e6ed",
-                textSize: '1.5rem'
-              })}
-              strokeWidth={10}
-            />
-            <div style={{ textAlign: "center", marginTop: '0.45rem', color: grammarColor, fontWeight: 600, fontSize: '1.04rem' }}>
-              {grammarLabel}
-            </div>
+      <div className="result-card-wide" ref={resultRef}>
+        {/* Header and subtitle */}
+        <div className="result-top-header">
+          <div className="analysis-title">Analysis Results</div>
+          <div className="analysis-subtitle">
+            Review the compatibility of your resume with the job description.
           </div>
         </div>
 
-        <p style={{textAlign: "center", fontSize: "0.98rem", marginTop: "0.13rem", marginBottom: "2rem", color: "#6b7280" }}>
-          The compatibility score reflects the alignment of values, goals, and working styles.
-        </p>
+        {/* 1. Summary Circles Row */}
+        <div className="grid-summary-row">
+          <InfoCard icon="💼" title="Compatibility Score" color="#2196f3">
+            <div className="circle-summary">
+              <CircularProgressbar
+                value={scorePercent}
+                text={`${rawScore}/10`}
+                styles={buildStyles({
+                  textColor: "#1e293b",
+                  pathColor: ringColor,
+                  trailColor: "#e0e6ed",
+                  textSize: "2rem",
+                  pathTransitionDuration: 0.7,
+                })}
+                strokeWidth={17}
+              />
+              <div className="score-label" style={{ color: ringColor, fontWeight: 600 }}>
+                {label}
+              </div>
+            </div>
+          </InfoCard>
+          <InfoCard icon="🛑" title="Gaps" color="#ffbd2f">
+            <div className="circle-summary">
+              <CircularProgressbar
+                value={gapsPercent}
+                text={gapsDetected ? "!" : "✓"}
+                styles={buildStyles({
+                  textColor: "#1e293b",
+                  pathColor: gapsColor,
+                  trailColor: "#e0e6ed",
+                  textSize: "2rem",
+                  pathTransitionDuration: 0.7,
+                })}
+                strokeWidth={11}
+              />
+              <div className="score-label" style={{ color: "#b38113", fontWeight: 600 }}>
+                {gapsLabel}
+              </div>
+            </div>
+          </InfoCard>
+          <InfoCard icon="✅" title="Grammar" color={grammarColor}>
+            <div className="circle-summary">
+              <CircularProgressbar
+                value={grammarPercent}
+                text={grammarDetected ? "!" : "✓"}
+                styles={buildStyles({
+                  textColor: "#1e293b",
+                  pathColor: grammarColor,
+                  trailColor: "#e0e6ed",
+                  textSize: "2rem",
+                  pathTransitionDuration: 0.7,
+                })}
+                strokeWidth={11}
+              />
+              <div className="score-label" style={{ color: grammarColor, fontWeight: 600 }}>
+                {grammarLabel}
+              </div>
+            </div>
+          </InfoCard>
+        </div>
 
-        <div className="summary-block">
-          <h3>Score Explanation</h3>
-          <div style={{ marginBottom: '0.5rem' }}>
+        {/* 2. Score Explanation */}
+        <InfoCard icon="📝" title="Score Explanation" color="#1e90ff">
+          <div style={{ marginBottom: '0.5rem', fontWeight: 500 }}>
             {resultData.Score_Explanation_NonTechnical || 'No non-technical explanation available.'}
           </div>
           <button
-            style={{
-              fontSize: '0.85rem',
-              color: '#2563eb',
-              cursor: 'pointer',
-              border: 'none',
-              background: 'none',
-              padding: 0
-            }}
+            className="show-details-btn"
             onClick={() => setShowTechnical(!showTechnical)}
             aria-expanded={showTechnical}
-            aria-label="Toggle more technical explanation"
+            aria-label="Toggle technical explanation"
           >
-            {showTechnical ? 'Hide Details ▲' : 'Technical Details ▼'}
+            {showTechnical ? "Hide Details ▲" : "Technical Details ▼"}
           </button>
           {showTechnical && (
-            <div style={{ marginTop: '0.5rem', color: '#475569', whiteSpace: 'pre-wrap' }}>
-              {resultData.Score_Explanation_Technical || 'No technical explanation available.'}
+            <div style={{ marginTop: "0.5rem", color: "#475569", whiteSpace: "pre-wrap" }}>
+              {resultData.Score_Explanation_Technical || "No technical explanation available."}
             </div>
           )}
-        </div>
+        </InfoCard>
 
-        <div className="matches-gaps-row">
-          <div className="matches-block">
-            <h3>Key Matches</h3>
-            {Array.isArray(resultData.Key_Matches) && resultData.Key_Matches.length ? (
-              <ul>
-                {resultData.Key_Matches.map((m: string, idx: number) => (
-                  <li key={idx}>{m}</li>
-                ))}
-              </ul>
-            ) : (
-              <p>No strong matches detected.</p>
-            )}
+        {/* 3. Main Content Grid */}
+        <div className="main-grid-ui">
+          {/* Left Column */}
+          <div>
+            {/* Key Matches */}
+            <InfoCard icon="🔑" title="Key Matches" color="#22c55e">
+              {Array.isArray(resultData.Key_Matches) && resultData.Key_Matches.length ? (
+                <ul className="details-list success">
+                  {resultData.Key_Matches.map((m: string, idx: number) => (
+                    <li key={idx}>
+                      <span className="match-icon">✔️</span>
+                      <span>{m}</span>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="empty-state">No strong matches detected.</p>
+              )}
+            </InfoCard>
+
+            {/* Grammar */}
+            <InfoCard icon="🔡" title="Grammar Check" color="#38e44c">
+              {Array.isArray(resultData.Grammatical_Errors) && resultData.Grammatical_Errors.length ? (
+                <ul className="details-list warning">
+                  {resultData.Grammatical_Errors.map((e: string, i: number) => (
+                    <li key={i}>
+                      <span className="warn-icon">⚠️</span> {e}
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="empty-state">No grammatical errors detected.</p>
+              )}
+            </InfoCard>
+
+            {/* Spelling */}
+            <InfoCard icon="📝" title="Spelling Mistakes" color="#38e44c">
+              {Array.isArray(resultData.Spelling_Mistakes) && resultData.Spelling_Mistakes.length ? (
+                <ul className="details-list warning">
+                  {resultData.Spelling_Mistakes.map((e: string, i: number) => (
+                    <li key={i}>
+                      <span className="warn-icon">⚠️</span> {e}
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="empty-state">No spelling mistakes detected.</p>
+              )}
+            </InfoCard>
+            {/* Client Names */}
+            <InfoCard icon="🏢" title="Client/Organization Names" color="#5778f8">
+              {Array.isArray(resultData.Client_Names) && resultData.Client_Names.length ? (
+                <ul className="details-list neutral">
+                  {resultData.Client_Names.map((e: string, i: number) => (
+                    <li key={i}><span className="info-icon">🏢</span> {e}</li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="empty-state">No confidential client names detected.</p>
+              )}
+            </InfoCard>
           </div>
+          {/* Right Column */}
+          <div>
+            {/* Key Gaps */}
+            <InfoCard icon="⚠️" title="Key Gaps" color="#ffbd2f">
+              {Array.isArray(resultData.Key_Gaps) && resultData.Key_Gaps.length ? (
+                <ul className="details-list warning">
+                  {resultData.Key_Gaps.map((g: string, idx: number) => (
+                    <li key={idx}>
+                      <span className="warn-icon">⚠️</span>
+                      <span>{g}</span>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="empty-state">No major gaps detected.</p>
+              )}
+            </InfoCard>
 
-          <div className="gaps-block">
-            <h3>Key Gaps</h3>
-            {Array.isArray(resultData.Key_Gaps) && resultData.Key_Gaps.length ? (
-              <ul>
-                {resultData.Key_Gaps.map((g: string, idx: number) => (
-                  <li key={idx}>{g}</li>
-                ))}
-              </ul>
-            ) : (
-              <p>No major gaps detected.</p>
-            )}
+            {/* Recommendations */}
+            <InfoCard icon="💡" title="Recommendations" color="#209ffc">
+              {Array.isArray(resultData.Recommendations) && resultData.Recommendations.length ? (
+                <ul className="details-list info">
+                  {resultData.Recommendations.map((r: string, idx: number) => (
+                    <li key={idx}>
+                      <span className="info-icon">ℹ️</span>
+                      <span>{r}</span>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="empty-state">No recommendations needed.</p>
+              )}
+            </InfoCard>
+
+            {/* Interview Questions */}
+            <InfoCard icon="🎤" title="Suggested Interview Questions" color="#5f76ff">
+              {suggestedQuestions.length ? (
+                <ul className="details-list">
+                  {suggestedQuestions.map((q: string, idx: number) => (
+                    <li key={idx}>
+                      <span style={{ marginRight: 7 }}>❓</span>
+                      <span>{q}</span>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="empty-state">No questions found.</p>
+              )}
+            </InfoCard>
           </div>
         </div>
 
-        <div className="recommendations-block">
-          <h3>Recommendations</h3>
-          {Array.isArray(resultData.Recommendations) && resultData.Recommendations.length ? (
-            <ul>
-              {resultData.Recommendations.map((r: string, idx: number) => (
-                <li key={idx}>{r}</li>
-              ))}
-            </ul>
-          ) : (
-            <p>No recommendations needed.</p>
-          )}
+        <div className="action-buttons" style={{ marginTop: 32 }}>
+          <button className="primary-btn" onClick={handleDownloadPDF}>
+            Download as PDF
+          </button>
+          <button className="secondary-btn" onClick={handleBackToUpload}>
+            Analyze Another Pair
+          </button>
         </div>
-
-        <div className="matches-block">
-          <h3>Suggested Interview Questions</h3>
-          {Array.isArray(resultData.Suggested_Questions) && resultData.Suggested_Questions.length ? (
-            <ul>
-              {resultData.Suggested_Questions.map((q: any, idx: number) => (
-                <li key={idx}>
-                  {q.question}{' '}
-                  <small style={{ color: '#888' }}>
-                    ({q.score?.toFixed(2)})
-                  </small>
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p>No questions found.</p>
-          )}
-        </div>
-
-        <div className="matches-block">
-          <h3>Grammatical Errors</h3>
-          {Array.isArray(resultData.Grammatical_Errors) && resultData.Grammatical_Errors.length ? (
-            <table className="result-table single-column">
-              <thead>
-                <tr>
-                  <th>Context</th>
-                </tr>
-              </thead>
-              <tbody>
-                {resultData.Grammatical_Errors.map((error: string, idx: number) => (
-                  <tr key={idx}>
-                    <td>{error}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          ) : (
-            <p>No grammatical errors detected.</p>
-          )}
-        </div>
-
-        <div className="matches-block">
-          <h3>Spelling Mistakes</h3>
-          {Array.isArray(resultData.Spelling_Mistakes) && resultData.Spelling_Mistakes.length ? (
-            <table className="result-table single-column">
-              <thead>
-                <tr>
-                  <th>Mistakes</th>
-                </tr>
-              </thead>
-              <tbody>
-                {resultData.Spelling_Mistakes.map((mistake: string, idx: number) => (
-                  <tr key={idx}>
-                    <td>{mistake}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          ) : (
-            <p>No spelling mistakes detected.</p>
-          )}
-        </div>
-
-        <div className="matches-block">
-          <h3>Client Name Detection</h3>
-          {Array.isArray(resultData.Client_Names) && resultData.Client_Names.length ? (
-            <table className="result-table single-column">
-              <thead>
-                <tr>
-                  <th>Client/Organization Names</th>
-                </tr>
-              </thead>
-              <tbody>
-                {resultData.Client_Names.map((name: string, idx: number) => (
-                  <tr key={idx}>
-                    <td>{name}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          ) : (
-            <p>No confidential client names detected.</p>
-          )}
-        </div>
-      </div>
-      <div className="action-buttons">
-        <button className="primary-btn" onClick={handleDownloadPDF}>
-          Download as PDF
-        </button>
-        <button className="secondary-btn" onClick={handleBackToUpload}>
-          Analyze Another Pair
-        </button>
       </div>
     </div>
   );
