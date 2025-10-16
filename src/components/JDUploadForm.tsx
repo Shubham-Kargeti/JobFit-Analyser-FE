@@ -3,9 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import './css/UploadForm.css';
 
-const UploadForm: React.FC = () => {
+const JDUploadForm: React.FC = () => {
   const [jdFile, setJdFile] = useState<File | null>(null);
-  const [resumeFile, setResumeFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
@@ -18,24 +17,21 @@ const UploadForm: React.FC = () => {
   };
 
   const handleProcess = async () => {
-    if (!jdFile || !resumeFile) {
-      alert('Please upload both JD and Resume!');
+    if (!jdFile) {
+      alert('Please upload a Job Description!');
       return;
     }
     setLoading(true);
     try {
-      // UPDATED: Use correct path with process_type
-      await uploadFile('jd/upload/jd_resume_match', jdFile);
-      await uploadFile('resume/upload/', resumeFile);
-      // UPDATED: Correct process API path for match
-      const response = await axios.get('http://localhost:8000/process/process/jd_resume_match');
+      await uploadFile('jd/upload/analyze_jd', jdFile);
+      const response = await axios.get('http://localhost:8000/process/process/analyze_jd/');
       const resultData = typeof response.data === 'string' ? JSON.parse(response.data) : response.data;
       ///////////////////////////////////////////////////
-      console.log("Processed Result Data:", resultData);
+      console.log("JD Analysis Result Data:", resultData);
       ///////////////////////////////////////////////////
-      navigate('/result', { state: { resultData } });
+      navigate('/jd-result', { state: { resultData } });
     } catch (error: any) {
-      alert(error.response?.data?.error || 'Error processing files.');
+      alert(error.response?.data?.error || 'Error processing file.');
     } finally {
       setLoading(false);
     }
@@ -44,22 +40,11 @@ const UploadForm: React.FC = () => {
   return (
     <div className="upload-container">
       <div className="upload-card">
-        <h2 className="upload-title">Upload Your Documents</h2>
+        <h2 className="upload-title">Upload Job Description</h2>
         <p style={{ textAlign: 'center', marginBottom: '1.5rem', color: '#7a869a' }}>
-          Let our AI analyze your resume against the job description.
+          Let our AI analyze the job description and extract essential details.
         </p>
         <div className="file-uploads">
-          <div className="file-upload-box">
-            <label className="file-label">Your Resume</label>
-            <input
-              type="file"
-              accept=".pdf,.docx"
-              onChange={(e) => setResumeFile(e.target.files?.[0] || null)}
-            />
-            {resumeFile && (
-              <div className="uploaded-file-name">{resumeFile.name}</div>
-            )}
-          </div>
           <div className="file-upload-box">
             <label className="file-label">Job Description</label>
             <input
@@ -77,11 +62,11 @@ const UploadForm: React.FC = () => {
           onClick={handleProcess}
           disabled={loading}
         >
-          {loading ? 'Processing...' : 'Analyze Now'}
+          {loading ? 'Processing...' : 'Analyze JD'}
         </button>
       </div>
     </div>
   );
 };
 
-export default UploadForm;
+export default JDUploadForm;

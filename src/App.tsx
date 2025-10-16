@@ -2,6 +2,8 @@ import { Routes, Route } from 'react-router-dom';
 import HomePage from './components/HomePage';
 import UploadForm from './components/UploadForm';
 import Result from './components/Result';
+import JDUploadForm from './components/JDUploadForm'; 
+import JDResult from './components/JDResult'; 
 
 function App() {
   return (
@@ -9,6 +11,8 @@ function App() {
       <Route path="/" element={<HomePage />} />
       <Route path="/upload" element={<UploadForm />} />
       <Route path="/result" element={<Result />} />
+      <Route path="/jd-upload" element={<JDUploadForm />} />   
+      <Route path="/jd-result" element={<JDResult />} />       
     </Routes>
   );
 }

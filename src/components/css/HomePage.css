@@ -46,3 +46,28 @@
   font-size: 0.9rem;
   color: #7a869a;
 }
+
+.homepage-btn-group {
+  display: flex;
+  gap: 1.1rem;
+  margin-bottom: 1.3rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.jd-analyze-btn {
+  background: #38b6ff;
+  color: #fff;
+  padding: 0.75rem 2rem;
+  border-radius: 8px;
+  border: none;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 3px 10px rgba(13, 202, 240, 0.08);
+  transition: background 0.2s;
+}
+
+.jd-analyze-btn:hover, .jd-analyze-btn:focus {
+  background: #0ca5dd;
+}
