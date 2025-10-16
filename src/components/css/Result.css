@@ -46,7 +46,7 @@
 .grid-summary-row {
   display: flex;
   gap: 1.5rem;
-  justify-content: center;
+  justify-content: flex-start;
   margin-bottom: 2.3rem;
 }
 .circle-summary {
@@ -230,3 +230,21 @@
 }
  
 
+.small-circle-summary {
+  min-width: 150px !important;
+  width: 150px;
+  height: 150px;
+  max-width: 150px;
+  margin: 0 auto;
+  padding-top: 0.08rem;
+  padding-bottom: 0.08rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.small-score-label {
+  font-size: 1.13rem !important;
+  margin-top: 0.45rem !important;
+}
