@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import './css/UploadForm.css';
+import '../styles/UploadForm.css';
 
 const UploadForm: React.FC = () => {
   const [jdFile, setJdFile] = useState<File | null>(null);

@@ -1,18 +1,33 @@
-import React from 'react';
+import React, { useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import './css/Result.css';
+import { downloadElementAsPDF } from '../utils/downloadPdf';
+import '../styles/Result.css'
 
 const JDResult: React.FC = () => {
   const locationHook = useLocation();
   const navigate = useNavigate();
-  // Assumes data is passed via React Router navigate state
+  const resultRef = useRef<HTMLDivElement>(null);
+  const [pdfMode, setPdfMode] = useState(false);
+
   const resultData = locationHook.state?.resultData || {};
+
+  const handleDownloadPDF = () => {
+    setPdfMode(true);
+    setTimeout(() => {
+      if (resultRef.current) {
+        downloadElementAsPDF(resultRef.current, "jd-analysis-result.pdf");
+      }
+      setTimeout(() => {
+        setPdfMode(false);
+      }, 500);
+    }, 0);
+  };
 
   return (
     <div className="result-container">
-      <div className="result-card-wide">
+      <div className="result-card-wide" ref={resultRef}>
         <div className="result-top-header">
-          <div className="analysis-title">JD Analysis Result</div>
+          <div className={`analysis-title${pdfMode ? " pdf-mode" : ""}`}>JD Analysis Result</div>
           <div className="analysis-subtitle">
             Key insights extracted from your job description.
           </div>
@@ -69,11 +84,16 @@ const JDResult: React.FC = () => {
             </div>
           </div>
         </div>
-        <div className="action-buttons" style={{ marginTop: 32 }}>
-          <button className="primary-btn" onClick={() => navigate("/")}>
-            Home
-          </button>
-        </div>
+        {!pdfMode && (
+          <div className="action-buttons" style={{ marginTop: 32 }}>
+            <button className="primary-btn" onClick={handleDownloadPDF}>
+              Download as PDF
+            </button>
+            <button className="secondary-btn" onClick={() => navigate("/")}>
+              Home
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

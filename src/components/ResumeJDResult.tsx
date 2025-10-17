@@ -1,7 +1,7 @@
 import React, { useRef, useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { downloadElementAsPDF } from "../utils/downloadPdf";
-import "./css/Result.css";
+import "../styles/Result.css";
 import { CircularProgressbar, buildStyles } from "react-circular-progressbar";
 import "react-circular-progressbar/dist/styles.css";
 
@@ -97,26 +97,11 @@ const Result: React.FC = () => {
   const grammarColor = hasGrammarErrors ? "#e43838" : "#38e44c";
   const grammarLabel = hasGrammarErrors ? "Grammar Error!" : "No Grammar Error";
 
-  // Remove all content between ** and **, including the markers themselves
-  const suggestedQuestionsTextRaw = resultData.Suggested_Questions || "";
-  const suggestedQuestionsText = suggestedQuestionsTextRaw.replace(/\*\*([^*]+)\*\*/g, "");
-
-  const suggestedQuestions = suggestedQuestionsText
-    .split('\n')
+  // Robust parser for new backend output (split double newlines, trim, filter out blanks)
+  const suggestedQuestionsRaw = resultData.Suggested_Questions || "";
+  const suggestedQuestions = suggestedQuestionsRaw
+    .split(/\n\s*\n/) // Split on double newlines, and trim
     .map((q: string) => q.trim())
-    .filter((q: string) =>
-      q.startsWith('- ') ||
-      q.startsWith('*') ||
-      /^\d+\./.test(q)
-    )
-    .map((q: string) =>
-      q.replace(/^(-|\*)\s*/, '')
-        .replace(/^\d+\.\s*/, '')
-        .replace(/[*_]+/g, '')
-        .replace(/^\u201c?/, '')
-        .replace(/\u201d?"?$/, '')
-        .trim()
-    )
     .filter((q: string) => q.length > 0);
 
   return (
@@ -324,16 +309,16 @@ const Result: React.FC = () => {
 
         {/* Hide action buttons in PDF mode */}
         {!pdfMode && (
-        <div className="action-buttons" style={{ marginTop: 32 }}>
-          <button className="primary-btn" onClick={handleDownloadPDF}>
-            Download as PDF
-          </button>
-          <button className="secondary-btn" onClick={handleBackToHome}>
-            Home
-          </button>
-        </div>
+          <div className="action-buttons" style={{ marginTop: 32 }}>
+            <button className="primary-btn" onClick={handleDownloadPDF}>
+              Download as PDF
+            </button>
+            <button className="secondary-btn" onClick={handleBackToHome}>
+              Home
+            </button>
+          </div>
         )}
-        
+
       </div>
     </div>
   );

@@ -1,9 +1,9 @@
 import { Routes, Route } from 'react-router-dom';
 import HomePage from './components/HomePage';
-import UploadForm from './components/UploadForm';
-import Result from './components/Result';
+import UploadForm from './components/ResumeJDUploadForm';
+import Result from './components/ResumeJDResult';
 import JDUploadForm from './components/JDUploadForm'; 
-import JDResult from './components/JDResult'; 
+import JDResult from './components/JDAnalysisResult'; 
 
 function App() {
   return (
