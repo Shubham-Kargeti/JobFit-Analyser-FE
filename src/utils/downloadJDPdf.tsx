@@ -18,3 +18,4 @@ export async function downloadElementAsPDF(element: HTMLElement, filename = 'doc
   pdf.save(filename);
 }
 
+

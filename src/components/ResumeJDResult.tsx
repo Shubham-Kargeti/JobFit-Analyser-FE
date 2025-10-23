@@ -1,9 +1,10 @@
 import React, { useRef, useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { downloadElementAsPDF } from "../utils/downloadPdf";
+import { downloadResultWithCourseLinksPDF } from '../utils/downloadResumeJDPdf'
 import "../styles/Result.css";
 import { CircularProgressbar, buildStyles } from "react-circular-progressbar";
 import "react-circular-progressbar/dist/styles.css";
+
 
 // InfoCard UI
 type InfoCardProps = {
@@ -84,12 +85,28 @@ const ResumeJDResult: React.FC = () => {
   }, [resultData]);
 
   const handleBackToHome = () => navigate("/");
+  // const handleDownloadPDF = () => {
+  //   setPdfMode(true);
+  //   setForceShowTechnical(true);
+  //   setTimeout(() => {
+  //     if (resultRef.current) {
+  //       downloadElementAsPDF(resultRef.current, "analysis-result.pdf");
+  //     }
+  //     setTimeout(() => {
+  //       setForceShowTechnical(false);
+  //       setPdfMode(false);
+  //     }, 500);
+  //   }, 0);
+  // };
   const handleDownloadPDF = () => {
     setPdfMode(true);
     setForceShowTechnical(true);
-    setTimeout(() => {
+    setTimeout(async () => {
       if (resultRef.current) {
-        downloadElementAsPDF(resultRef.current, "analysis-result.pdf");
+        await downloadResultWithCourseLinksPDF(
+          resultRef.current, // HTMLElement
+          courseRecommendations // Parsed array from your FE logic
+        );
       }
       setTimeout(() => {
         setForceShowTechnical(false);
@@ -148,71 +165,69 @@ const ResumeJDResult: React.FC = () => {
   const grammarColor = hasGrammarErrors ? "#e43838" : "#38e44c";
   const grammarLabel = hasGrammarErrors ? "Grammar Error!" : "No Grammar Error";
 
-  // Parse suggested questions, splitting by newline and trimming
-  const suggestedQuestionsRaw = resultData.Suggested_Questions || "";
-  const suggestedQuestions = suggestedQuestionsRaw
-    .split(/\n/)
-    .map((q: string) => q.trim())
-    .filter((q: string) => q.length > 0);
+  const suggestedQuestions: string[] = Array.isArray(resultData.Suggested_Questions)
+    ? resultData.Suggested_Questions
+    : [];
+
 
   // Dynamic course recommendations extraction with URL parsing from multiline course string
   const courseRecommendations: CourseRecommendation[] = Array.isArray(resultData.Suggest_course)
     ? resultData.Suggest_course.map((c: any) => {
-        const lines = c.course.split("\n").map((l: string) => l.trim());
+      const lines = c.course.split("\n").map((l: string) => l.trim());
 
-        const skillAreaLine = lines.find((line : string) =>
-          line.toLowerCase().startsWith("skill area:")
-        );
-        const subSkillLine = lines.find((line : string) =>
-          line.toLowerCase().startsWith("sub-skill:")
-        );
-        const durationLine = lines.find((line : string) =>
-          line.toLowerCase().startsWith("duration:")
-        );
-        const learningObjectivesLine = lines.find((line : string) =>
-          line.toLowerCase().startsWith("learning objectives:")
-        );
-        const recommendedResourceLineIndex = lines.findIndex((line : string) =>
-          line.toLowerCase().startsWith("recommended resource:")
-        );
+      const skillAreaLine = lines.find((line: string) =>
+        line.toLowerCase().startsWith("skill area:")
+      );
+      const subSkillLine = lines.find((line: string) =>
+        line.toLowerCase().startsWith("sub-skill:")
+      );
+      const durationLine = lines.find((line: string) =>
+        line.toLowerCase().startsWith("duration:")
+      );
+      const learningObjectivesLine = lines.find((line: string) =>
+        line.toLowerCase().startsWith("learning objectives:")
+      );
+      const recommendedResourceLineIndex = lines.findIndex((line: string) =>
+        line.toLowerCase().startsWith("recommended resource:")
+      );
 
-        // Extract URL from recommended resource line or subsequent lines
-        let url = "#";
-        if (recommendedResourceLineIndex !== -1) {
-          const resLine = lines[recommendedResourceLineIndex];
-          const urlMatch = resLine.match(/(https?:\/\/[^\s]+)/);
-          if (urlMatch) {
-            url = urlMatch[0];
-          } else if (lines.length > recommendedResourceLineIndex + 1) {
-            for (let i = recommendedResourceLineIndex + 1; i < lines.length; i++) {
-              const possibleUrl = lines[i];
-              if (possibleUrl.startsWith("http://") || possibleUrl.startsWith("https://")) {
-                url = possibleUrl;
-                break;
-              }
-            }
-          }
-        } else {
-          // fallback find first url in any line
-          for (const line of lines) {
-            const uMatch = line.match(/(https?:\/\/[^\s]+)/);
-            if (uMatch) {
-              url = uMatch[0];
+      // Extract URL from recommended resource line or subsequent lines
+      let url = "#";
+      if (recommendedResourceLineIndex !== -1) {
+        const resLine = lines[recommendedResourceLineIndex];
+        const urlMatch = resLine.match(/(https?:\/\/[^\s]+)/);
+        if (urlMatch) {
+          url = urlMatch[0];
+        } else if (lines.length > recommendedResourceLineIndex + 1) {
+          for (let i = recommendedResourceLineIndex + 1; i < lines.length; i++) {
+            const possibleUrl = lines[i];
+            if (possibleUrl.startsWith("http://") || possibleUrl.startsWith("https://")) {
+              url = possibleUrl;
               break;
             }
           }
         }
+      } else {
+        // fallback find first url in any line
+        for (const line of lines) {
+          const uMatch = line.match(/(https?:\/\/[^\s]+)/);
+          if (uMatch) {
+            url = uMatch[0];
+            break;
+          }
+        }
+      }
 
-        return {
-          skillArea: skillAreaLine ? skillAreaLine.split(":")[1].trim() : "N/A",
-          topic: subSkillLine ? subSkillLine.split(":")[1].trim() : "N/A",
-          duration: durationLine ? durationLine.split(":")[1].trim() : "N/A",
-          url,
-          objective: learningObjectivesLine
-            ? learningObjectivesLine.split(":")[1].trim()
-            : "No learning objectives provided.",
-        };
-      })
+      return {
+        skillArea: skillAreaLine ? skillAreaLine.split(":")[1].trim() : "N/A",
+        topic: subSkillLine ? subSkillLine.split(":")[1].trim() : "N/A",
+        duration: durationLine ? durationLine.split(":")[1].trim() : "N/A",
+        url,
+        objective: learningObjectivesLine
+          ? learningObjectivesLine.split(":")[1].trim()
+          : "No learning objectives provided.",
+      };
+    })
     : [];
 
   return (
@@ -356,7 +371,7 @@ const ResumeJDResult: React.FC = () => {
           <div>
             <InfoCard icon="🔡" title="Grammar Check" color="#38e44c">
               {Array.isArray(resultData.Grammatical_Errors) &&
-              resultData.Grammatical_Errors.length ? (
+                resultData.Grammatical_Errors.length ? (
                 <ul className="details-list warning">
                   {resultData.Grammatical_Errors.map((e: string, i: number) => (
                     <li key={i}>
@@ -370,7 +385,7 @@ const ResumeJDResult: React.FC = () => {
             </InfoCard>
             <InfoCard icon="📝" title="Spelling Mistakes" color="#38e44c">
               {Array.isArray(resultData.Spelling_Mistakes) &&
-              resultData.Spelling_Mistakes.length ? (
+                resultData.Spelling_Mistakes.length ? (
                 <ul className="details-list warning">
                   {resultData.Spelling_Mistakes.map((e: string, i: number) => (
                     <li key={i}>
@@ -384,7 +399,7 @@ const ResumeJDResult: React.FC = () => {
             </InfoCard>
             <InfoCard icon="🏢" title="Client/Organization Names" color="#5778f8">
               {Array.isArray(resultData.Client_Names) &&
-              resultData.Client_Names.length ? (
+                resultData.Client_Names.length ? (
                 <ul className="details-list neutral">
                   {resultData.Client_Names.map((e: string, i: number) => (
                     <li key={i}>
@@ -400,7 +415,7 @@ const ResumeJDResult: React.FC = () => {
           <div>
             <InfoCard icon="💡" title="Recommendations" color="#209ffc">
               {Array.isArray(resultData.Recommendations) &&
-              resultData.Recommendations.length ? (
+                resultData.Recommendations.length ? (
                 <ul className="details-list info">
                   {resultData.Recommendations.map((r: string, idx: number) => (
                     <li key={idx}>

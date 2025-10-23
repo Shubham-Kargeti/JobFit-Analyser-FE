@@ -1,6 +1,6 @@
 import React, { useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { downloadElementAsPDF } from '../utils/downloadPdf';
+import { downloadElementAsPDF } from '../utils/downloadJDPdf';
 import '../styles/Result.css'
 
 const JDResult: React.FC = () => {
