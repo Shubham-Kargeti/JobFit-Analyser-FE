@@ -5,6 +5,7 @@ import "../styles/Result.css";
 import { CircularProgressbar, buildStyles } from "react-circular-progressbar";
 import "react-circular-progressbar/dist/styles.css";
 
+// InfoCard UI
 type InfoCardProps = {
   icon: React.ReactNode;
   title: string;
@@ -13,8 +14,17 @@ type InfoCardProps = {
   className?: string;
 };
 
-const InfoCard: React.FC<InfoCardProps> = ({ icon, title, color, children, className }) => (
-  <div className={`info-card${className ? " " + className : ""}`} style={color ? { borderLeft: `5px solid ${color}` } : {}}>
+const InfoCard: React.FC<InfoCardProps> = ({
+  icon,
+  title,
+  color,
+  children,
+  className,
+}) => (
+  <div
+    className={`info-card${className ? " " + className : ""}`}
+    style={color ? { borderLeft: `5px solid ${color}` } : {}}
+  >
     <div className="info-card-title">
       <span className="icon">{icon}</span>
       <span>{title}</span>
@@ -23,7 +33,43 @@ const InfoCard: React.FC<InfoCardProps> = ({ icon, title, color, children, class
   </div>
 );
 
-const Result: React.FC = () => {
+// Course card UI
+type CourseRecommendation = {
+  skillArea: string;
+  topic: string;
+  duration: string;
+  url: string;
+  objective: string;
+};
+
+const CourseCard: React.FC<{ course: CourseRecommendation }> = ({ course }) => (
+  <div className="course-card">
+    <div className="course-header">
+      <div className="skill-area">{course.skillArea}</div>
+      <div className="course-topic">{course.topic}</div>
+    </div>
+    <div className="course-details">
+      <div>
+        <strong>Duration:</strong> {course.duration}
+      </div>
+      <div>
+        <strong>Objective:</strong>{" "}
+        <span style={{ whiteSpace: "pre-wrap" }}>{course.objective}</span>
+      </div>
+    </div>
+    <a
+      href={course.url || "#"}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="course-link"
+    >
+      Go to Course
+    </a>
+  </div>
+);
+
+// Main result UI
+const ResumeJDResult: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const resultRef = useRef<HTMLDivElement>(null);
@@ -67,7 +113,7 @@ const Result: React.FC = () => {
     );
   }
 
-  // Circles/score
+  // Parse compatibility score from string format "7/10 - ...", get numeric part
   const parseScore = (scoreStr: string) => {
     if (!scoreStr) return 0;
     const match = scoreStr.match(/^(\d+(\.\d+)?)/);
@@ -85,36 +131,103 @@ const Result: React.FC = () => {
     label = "Moderate Compatibility";
   }
 
-  const gapsDetected = Array.isArray(resultData.Key_Gaps) && resultData.Key_Gaps.length > 0;
+  const gapsDetected =
+    Array.isArray(resultData.Key_Gaps) && resultData.Key_Gaps.length > 0;
   const gapsPercent = gapsDetected ? 100 : 0;
   const gapsColor = "#ffbd2f";
   const gapsLabel = gapsDetected ? "Key Gaps Detected!" : "No Key Gaps";
 
   const hasGrammarErrors =
-    (Array.isArray(resultData.Grammatical_Errors) && resultData.Grammatical_Errors.filter((e: string) => !!e && !!e.trim()).length > 0) ||
-    (Array.isArray(resultData.Spelling_Mistakes) && resultData.Spelling_Mistakes.filter((e: string) => !!e && !!e.trim()).length > 0);
+    (Array.isArray(resultData.Grammatical_Errors) &&
+      resultData.Grammatical_Errors.filter((e: string) => !!e && !!e.trim())
+        .length > 0) ||
+    (Array.isArray(resultData.Spelling_Mistakes) &&
+      resultData.Spelling_Mistakes.filter((e: string) => !!e && !!e.trim())
+        .length > 0);
 
   const grammarColor = hasGrammarErrors ? "#e43838" : "#38e44c";
   const grammarLabel = hasGrammarErrors ? "Grammar Error!" : "No Grammar Error";
 
-  // Robust parser for new backend output (split double newlines, trim, filter out blanks)
+  // Parse suggested questions, splitting by newline and trimming
   const suggestedQuestionsRaw = resultData.Suggested_Questions || "";
   const suggestedQuestions = suggestedQuestionsRaw
-    .split(/\n\s*\n/) // Split on double newlines, and trim
+    .split(/\n/)
     .map((q: string) => q.trim())
     .filter((q: string) => q.length > 0);
+
+  // Dynamic course recommendations extraction with URL parsing from multiline course string
+  const courseRecommendations: CourseRecommendation[] = Array.isArray(resultData.Suggest_course)
+    ? resultData.Suggest_course.map((c: any) => {
+        const lines = c.course.split("\n").map((l: string) => l.trim());
+
+        const skillAreaLine = lines.find((line : string) =>
+          line.toLowerCase().startsWith("skill area:")
+        );
+        const subSkillLine = lines.find((line : string) =>
+          line.toLowerCase().startsWith("sub-skill:")
+        );
+        const durationLine = lines.find((line : string) =>
+          line.toLowerCase().startsWith("duration:")
+        );
+        const learningObjectivesLine = lines.find((line : string) =>
+          line.toLowerCase().startsWith("learning objectives:")
+        );
+        const recommendedResourceLineIndex = lines.findIndex((line : string) =>
+          line.toLowerCase().startsWith("recommended resource:")
+        );
+
+        // Extract URL from recommended resource line or subsequent lines
+        let url = "#";
+        if (recommendedResourceLineIndex !== -1) {
+          const resLine = lines[recommendedResourceLineIndex];
+          const urlMatch = resLine.match(/(https?:\/\/[^\s]+)/);
+          if (urlMatch) {
+            url = urlMatch[0];
+          } else if (lines.length > recommendedResourceLineIndex + 1) {
+            for (let i = recommendedResourceLineIndex + 1; i < lines.length; i++) {
+              const possibleUrl = lines[i];
+              if (possibleUrl.startsWith("http://") || possibleUrl.startsWith("https://")) {
+                url = possibleUrl;
+                break;
+              }
+            }
+          }
+        } else {
+          // fallback find first url in any line
+          for (const line of lines) {
+            const uMatch = line.match(/(https?:\/\/[^\s]+)/);
+            if (uMatch) {
+              url = uMatch[0];
+              break;
+            }
+          }
+        }
+
+        return {
+          skillArea: skillAreaLine ? skillAreaLine.split(":")[1].trim() : "N/A",
+          topic: subSkillLine ? subSkillLine.split(":")[1].trim() : "N/A",
+          duration: durationLine ? durationLine.split(":")[1].trim() : "N/A",
+          url,
+          objective: learningObjectivesLine
+            ? learningObjectivesLine.split(":")[1].trim()
+            : "No learning objectives provided.",
+        };
+      })
+    : [];
 
   return (
     <div className="result-container">
       <div className="result-card-wide" ref={resultRef}>
         <div className="result-top-header">
-          <div className={`analysis-title${pdfMode ? " pdf-mode" : ""}`}>Analysis Results</div>
+          <div className={`analysis-title${pdfMode ? " pdf-mode" : ""}`}>
+            Analysis Results
+          </div>
           <div className="analysis-subtitle">
             Review the compatibility of your resume with the job description.
           </div>
         </div>
 
-        {/* ========== Circles Row - Reduced Size ========== */}
+        {/* Circles Row */}
         <div className="grid-summary-row">
           <InfoCard icon="💼" title="Compatibility Score" color="#2196f3">
             <div className="circle-summary small-circle-summary">
@@ -130,7 +243,10 @@ const Result: React.FC = () => {
                 })}
                 strokeWidth={15}
               />
-              <div className="score-label small-score-label" style={{ color: ringColor, fontWeight: 600 }}>
+              <div
+                className="score-label small-score-label"
+                style={{ color: ringColor, fontWeight: 600 }}
+              >
                 {label}
               </div>
             </div>
@@ -149,7 +265,10 @@ const Result: React.FC = () => {
                 })}
                 strokeWidth={9}
               />
-              <div className="score-label small-score-label" style={{ color: "#b38113", fontWeight: 600 }}>
+              <div
+                className="score-label small-score-label"
+                style={{ color: "#b38113", fontWeight: 600 }}
+              >
                 {gapsLabel}
               </div>
             </div>
@@ -168,17 +287,21 @@ const Result: React.FC = () => {
                 })}
                 strokeWidth={9}
               />
-              <div className="score-label small-score-label" style={{ color: grammarColor, fontWeight: 600 }}>
+              <div
+                className="score-label small-score-label"
+                style={{ color: grammarColor, fontWeight: 600 }}
+              >
                 {grammarLabel}
               </div>
             </div>
           </InfoCard>
         </div>
 
-        {/* 2. Score Explanation */}
+        {/* Score Explanation */}
         <InfoCard icon="📝" title="Score Explanation" color="#1e90ff">
-          <div style={{ marginBottom: '0.5rem', fontWeight: 500 }}>
-            {resultData.Score_Explanation_NonTechnical || 'No non-technical explanation available.'}
+          <div style={{ marginBottom: "0.5rem", fontWeight: 500 }}>
+            {resultData.Score_Explanation_NonTechnical ||
+              "No non-technical explanation available."}
           </div>
           <button
             className="show-details-btn"
@@ -190,11 +313,13 @@ const Result: React.FC = () => {
           </button>
           {(showTechnical || forceShowTechnical) && (
             <div style={{ marginTop: "0.5rem", color: "#475569", whiteSpace: "pre-wrap" }}>
-              {resultData.Score_Explanation_Technical || "No technical explanation available."}
+              {resultData.Score_Explanation_Technical ||
+                "No technical explanation available."}
             </div>
           )}
         </InfoCard>
 
+        {/* Key Matches & Gaps */}
         <div className="key-cards-row">
           <InfoCard icon="🔑" title="Key Matches" color="#22c55e" className="flex-child">
             {Array.isArray(resultData.Key_Matches) && resultData.Key_Matches.length ? (
@@ -226,12 +351,12 @@ const Result: React.FC = () => {
           </InfoCard>
         </div>
 
+        {/* Grammar, Spelling, Recommendations */}
         <div className="main-grid-ui">
-          {/* Left Column */}
           <div>
-            {/* Grammar */}
             <InfoCard icon="🔡" title="Grammar Check" color="#38e44c">
-              {Array.isArray(resultData.Grammatical_Errors) && resultData.Grammatical_Errors.length ? (
+              {Array.isArray(resultData.Grammatical_Errors) &&
+              resultData.Grammatical_Errors.length ? (
                 <ul className="details-list warning">
                   {resultData.Grammatical_Errors.map((e: string, i: number) => (
                     <li key={i}>
@@ -243,9 +368,9 @@ const Result: React.FC = () => {
                 <p className="empty-state">No grammatical errors detected.</p>
               )}
             </InfoCard>
-            {/* Spelling */}
             <InfoCard icon="📝" title="Spelling Mistakes" color="#38e44c">
-              {Array.isArray(resultData.Spelling_Mistakes) && resultData.Spelling_Mistakes.length ? (
+              {Array.isArray(resultData.Spelling_Mistakes) &&
+              resultData.Spelling_Mistakes.length ? (
                 <ul className="details-list warning">
                   {resultData.Spelling_Mistakes.map((e: string, i: number) => (
                     <li key={i}>
@@ -257,12 +382,14 @@ const Result: React.FC = () => {
                 <p className="empty-state">No spelling mistakes detected.</p>
               )}
             </InfoCard>
-            {/* Client Names */}
             <InfoCard icon="🏢" title="Client/Organization Names" color="#5778f8">
-              {Array.isArray(resultData.Client_Names) && resultData.Client_Names.length ? (
+              {Array.isArray(resultData.Client_Names) &&
+              resultData.Client_Names.length ? (
                 <ul className="details-list neutral">
                   {resultData.Client_Names.map((e: string, i: number) => (
-                    <li key={i}><span className="info-icon">🏢</span> {e}</li>
+                    <li key={i}>
+                      <span className="info-icon">🏢</span> {e}
+                    </li>
                   ))}
                 </ul>
               ) : (
@@ -270,11 +397,10 @@ const Result: React.FC = () => {
               )}
             </InfoCard>
           </div>
-          {/* Right Column */}
           <div>
-            {/* Recommendations */}
             <InfoCard icon="💡" title="Recommendations" color="#209ffc">
-              {Array.isArray(resultData.Recommendations) && resultData.Recommendations.length ? (
+              {Array.isArray(resultData.Recommendations) &&
+              resultData.Recommendations.length ? (
                 <ul className="details-list info">
                   {resultData.Recommendations.map((r: string, idx: number) => (
                     <li key={idx}>
@@ -290,6 +416,7 @@ const Result: React.FC = () => {
           </div>
         </div>
 
+        {/* Suggested Questions */}
         <div className="suggested-questions-wide" style={{ marginTop: "2rem" }}>
           <InfoCard icon="🎤" title="Suggested Interview Questions" color="#5f76ff">
             {suggestedQuestions.length ? (
@@ -307,7 +434,22 @@ const Result: React.FC = () => {
           </InfoCard>
         </div>
 
-        {/* Hide action buttons in PDF mode */}
+        {/* Course Recommendations */}
+        <div className="course-recommendations-section" style={{ marginTop: "2rem" }}>
+          <InfoCard icon="🎓" title="Course Recommendations" color="#3bb273">
+            <div className="course-cards-row">
+              {courseRecommendations.length > 0 ? (
+                courseRecommendations.map((course, idx) => (
+                  <CourseCard key={idx} course={course} />
+                ))
+              ) : (
+                <p className="empty-state">No course recommendations available.</p>
+              )}
+            </div>
+          </InfoCard>
+        </div>
+
+        {/* Action Buttons */}
         {!pdfMode && (
           <div className="action-buttons" style={{ marginTop: 32 }}>
             <button className="primary-btn" onClick={handleDownloadPDF}>
@@ -318,10 +460,9 @@ const Result: React.FC = () => {
             </button>
           </div>
         )}
-
       </div>
     </div>
   );
 };
 
-export default Result;
+export default ResumeJDResult;

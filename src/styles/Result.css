@@ -248,3 +248,68 @@
   font-size: 1.13rem !important;
   margin-top: 0.45rem !important;
 }
+/*-------------------------------------------------------*/
+
+.course-cards-row {
+  display: flex;
+  gap: 2rem;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+}
+
+.course-card {
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: 0 4px 16px rgba(63, 187, 115, 0.11);
+  padding: 1.5rem 1.4rem;
+  min-width: 350px;
+  max-width: 410px;
+  margin-bottom: 1.2rem;
+  border-left: 5px solid #3bb273;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.course-header {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.7rem;
+}
+
+.skill-area {
+  font-size: 1.09rem;
+  font-weight: 650;
+  color: #3bb273;
+  background: #e6f8ec;
+  padding: 4px 17px;
+  border-radius: 12px;
+  margin-right: 1rem;
+}
+
+.course-topic {
+  font-size: 1.08rem;
+  font-weight: 600;
+  color: #212c32;
+}
+
+.course-details div {
+  margin-bottom: 0.3rem;
+}
+.course-link {
+  margin-top: 0.8rem;
+  color: #fff;
+  background: linear-gradient(90deg, #3bb273 20%, #63d49d 100%);
+  padding: 6px 18px;
+  border-radius: 10px;
+  font-size: 1rem;
+  font-weight: 560;
+  text-decoration: none;
+  transition: background 0.28s;
+}
+.course-link:hover {
+  background: linear-gradient(90deg, #63d49d 20%, #3bb273 100%);
+}
+
+
