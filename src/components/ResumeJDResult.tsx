@@ -453,13 +453,44 @@ const ResumeJDResult: React.FC = () => {
         <div className="course-recommendations-section" style={{ marginTop: "2rem" }}>
           <InfoCard icon="🎓" title="Course Recommendations" color="#3bb273">
             <div className="course-cards-row">
-              {courseRecommendations.length > 0 ? (
+              {/* {courseRecommendations.length > 0 ? (
                 courseRecommendations.map((course, idx) => (
                   <CourseCard key={idx} course={course} />
                 ))
               ) : (
                 <p className="empty-state">No course recommendations available.</p>
-              )}
+              )} */
+
+                // courseRecommendations.length > 0 ? (
+                //   courseRecommendations
+                //     .filter((course) => course.url && course.url !== "#" && course.url.trim() !== "")
+                //     .length > 0 ? (
+                //     courseRecommendations
+                //       .filter((course) => course.url && course.url !== "#" && course.url.trim() !== "")
+                //       .map((course, idx) => <CourseCard key={idx} course={course} />)
+                //   ) : (
+                //     <p className="empty-state">No valid course links available.</p>
+                //   )
+                // ) : (
+                //   <p className="empty-state">No course recommendations available.</p>
+                // )
+
+                courseRecommendations.length > 0 ? (
+                  courseRecommendations
+                    .filter((course) => course.url && course.url !== "#" && course.url.trim() !== "")
+                    .length > 0 ? (
+                    courseRecommendations
+                      .filter((course) => course.url && course.url !== "#" && course.url.trim() !== "")
+                      .map((course, idx) => <CourseCard key={idx} course={course} />)
+                  ) : (
+                    <p className="empty-state">No valid course links available.</p>
+                  )
+                ) : (
+                  <p className="empty-state">No course recommendations available.</p>
+                )
+              }
+
+
             </div>
           </InfoCard>
         </div>
