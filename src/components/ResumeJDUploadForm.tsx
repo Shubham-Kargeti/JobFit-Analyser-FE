@@ -24,15 +24,11 @@ const UploadForm: React.FC = () => {
     }
     setLoading(true);
     try {
-      // UPDATED: Use correct path with process_type
       await uploadFile('jd/upload/jd_resume_match', jdFile);
       await uploadFile('resume/upload/', resumeFile);
-      // UPDATED: Correct process API path for match
       const response = await axios.get('http://localhost:8000/process/process/jd_resume_match');
       const resultData = typeof response.data === 'string' ? JSON.parse(response.data) : response.data;
-      ///////////////////////////////////////////////////
       console.log("Processed Result Data:", resultData);
-      ///////////////////////////////////////////////////
       navigate('/result', { state: { resultData } });
     } catch (error: any) {
       alert(error.response?.data?.error || 'Error processing files.');
