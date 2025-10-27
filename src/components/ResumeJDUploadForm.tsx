@@ -40,13 +40,14 @@ const UploadForm: React.FC = () => {
   return (
     <div className="upload-container">
       <div className="upload-card">
-        <h2 className="upload-title">Upload Your Documents</h2>
+        <h2 className="upload-title">Analyze Employee Resume Against Project JD</h2>
         <p style={{ textAlign: 'center', marginBottom: '1.5rem', color: '#7a869a' }}>
-          Let our AI analyze your resume against the job description.
+          Upload an employee’s resume and the corresponding project JD to get a detailed AI-powered skill fit analysis.
+
         </p>
         <div className="file-uploads">
           <div className="file-upload-box">
-            <label className="file-label">Your Resume</label>
+            <label className="file-label">Resume</label>
             <input
               type="file"
               accept=".pdf,.docx"

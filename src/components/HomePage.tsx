@@ -15,8 +15,8 @@ const HomePage: React.FC = () => {
 
   return (
     <div className="home-container">
-      <h1 className="headline">Analyze Your Resume and Job Matches with AI</h1>
-      <p className="tagline">Get instant, intelligent feedback and improve your chances of landing your dream project.</p>
+      <h1 className="headline">SkillMatch: Talent Alignment Suite</h1>
+      <p className="tagline">Accelerate project staffing by efficiently matching team members’ strengths to project needs.</p>
 
       {/* Features Boxes */}
       <div className="features-wrapper">
@@ -24,7 +24,7 @@ const HomePage: React.FC = () => {
         <div className="feature-box">
           <h2 className="box-title">Resume & JD Analysis</h2>
           <p className="box-desc">
-            Upload your resume and job description to get detailed proficiency matchmaking and areas to improve.
+            Upload an employee’s resume together with the role’s job description to receive instant AI analysis on alignment, strengths, and gaps.
           </p>
           <button className="action-btn" onClick={handleGetStarted}>Analyze Now</button>
         </div>
@@ -32,14 +32,14 @@ const HomePage: React.FC = () => {
         <div className="feature-box">
           <h2 className="box-title">Job Description Insights</h2>
           <p className="box-desc">
-            Extract critical skills, responsibilities, and requirements from any JD with AI assistance.
+            Extract key requirements and skill benchmarks from any project JD to inform team selection and employee development.
           </p>
           <button className="action-btn" onClick={handleAnalyzeJD}>Upload JD</button>
         </div>
       </div>
 
       {/* Footer */}
-      <footer className="site-footer">&copy; {new Date().getFullYear()} JobFit Analyzer. All rights reserved.</footer>
+      <footer className="site-footer">&copy; {new Date().getFullYear()} SkillMatch. All rights reserved.</footer>
     </div>
   );
 };
