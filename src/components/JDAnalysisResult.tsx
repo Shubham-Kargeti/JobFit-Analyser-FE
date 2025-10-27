@@ -23,6 +23,11 @@ const JDResult: React.FC = () => {
     }, 0);
   };
 
+  const experienceLines = (resultData.experience || "Not specified")
+    .split(';')
+    .map((item: string) => item.trim())
+    .filter((item: string) => item.length > 0);
+
   return (
     <div className="result-container">
       <div className="result-card-wide" ref={resultRef}>
@@ -81,6 +86,20 @@ const JDResult: React.FC = () => {
               <div style={{ fontSize: '1.0rem' }}>
                 {resultData.duration || "No duration specified"}
               </div>
+            </div>
+            <div className="info-card" style={{ borderLeft: "5px solid #5da8ff" }}>
+              <div className="info-card-title">
+                <span>🗓️</span> Experience
+              </div>
+              <ul style={{ fontSize: '1.0rem', color: "#2367be", marginLeft: 0, paddingLeft: '1rem' }}>
+                {experienceLines.length === 0 ? (
+                  <li>Not specified</li>
+                ) : (
+                  experienceLines.map((line: string, idx: number) => (
+                    <li key={idx}>{line}</li>
+                  ))
+                )}
+              </ul>
             </div>
           </div>
         </div>
