@@ -85,27 +85,15 @@ const ResumeJDResult: React.FC = () => {
   }, [resultData]);
 
   const handleBackToHome = () => navigate("/");
-  // const handleDownloadPDF = () => {
-  //   setPdfMode(true);
-  //   setForceShowTechnical(true);
-  //   setTimeout(() => {
-  //     if (resultRef.current) {
-  //       downloadElementAsPDF(resultRef.current, "analysis-result.pdf");
-  //     }
-  //     setTimeout(() => {
-  //       setForceShowTechnical(false);
-  //       setPdfMode(false);
-  //     }, 500);
-  //   }, 0);
-  // };
+
   const handleDownloadPDF = () => {
     setPdfMode(true);
     setForceShowTechnical(true);
     setTimeout(async () => {
       if (resultRef.current) {
         await downloadResultWithCourseLinksPDF(
-          resultRef.current, // HTMLElement
-          courseRecommendations // Parsed array from your FE logic
+          resultRef.current,
+          courseRecommendations
         );
       }
       setTimeout(() => {
@@ -130,7 +118,7 @@ const ResumeJDResult: React.FC = () => {
     );
   }
 
-  // Parse compatibility score from string format "7/10 - ...", get numeric part
+
   const parseScore = (scoreStr: string) => {
     if (!scoreStr) return 0;
     const match = scoreStr.match(/^(\d+(\.\d+)?)/);
@@ -238,7 +226,7 @@ const ResumeJDResult: React.FC = () => {
             Analysis Results
           </div>
           <div className="analysis-subtitle">
-            Review the compatibility of your resume with the job description.
+            Detailed breakdown of skill match, gaps, and overall fit for the chosen assignment.
           </div>
         </div>
 
@@ -453,28 +441,7 @@ const ResumeJDResult: React.FC = () => {
         <div className="course-recommendations-section" style={{ marginTop: "2rem" }}>
           <InfoCard icon="🎓" title="Course Recommendations" color="#3bb273">
             <div className="course-cards-row">
-              {/* {courseRecommendations.length > 0 ? (
-                courseRecommendations.map((course, idx) => (
-                  <CourseCard key={idx} course={course} />
-                ))
-              ) : (
-                <p className="empty-state">No course recommendations available.</p>
-              )} */
-
-                // courseRecommendations.length > 0 ? (
-                //   courseRecommendations
-                //     .filter((course) => course.url && course.url !== "#" && course.url.trim() !== "")
-                //     .length > 0 ? (
-                //     courseRecommendations
-                //       .filter((course) => course.url && course.url !== "#" && course.url.trim() !== "")
-                //       .map((course, idx) => <CourseCard key={idx} course={course} />)
-                //   ) : (
-                //     <p className="empty-state">No valid course links available.</p>
-                //   )
-                // ) : (
-                //   <p className="empty-state">No course recommendations available.</p>
-                // )
-
+              {
                 courseRecommendations.length > 0 ? (
                   courseRecommendations
                     .filter((course) => course.url && course.url !== "#" && course.url.trim() !== "")
