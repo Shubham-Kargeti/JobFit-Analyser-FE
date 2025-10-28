@@ -26,7 +26,6 @@ const JDUploadForm: React.FC = () => {
       await uploadFile('jd/upload/analyze_jd', jdFile);
       const response = await axios.get('http://localhost:8000/process/process/analyze_jd/');
       const resultData = typeof response.data === 'string' ? JSON.parse(response.data) : response.data;
-      console.log("JD Analysis Result Data:", resultData);
       navigate('/jd-result', { state: { resultData } });
     } catch (error: any) {
       alert(error.response?.data?.error || 'Error processing file.');
