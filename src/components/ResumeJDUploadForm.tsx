@@ -28,7 +28,6 @@ const UploadForm: React.FC = () => {
       await uploadFile('resume/upload/', resumeFile);
       const response = await axios.get('http://localhost:8000/process/process/jd_resume_match');
       const resultData = typeof response.data === 'string' ? JSON.parse(response.data) : response.data;
-      console.log("Processed Result Data:", resultData);
       navigate('/result', { state: { resultData } });
     } catch (error: any) {
       alert(error.response?.data?.error || 'Error processing files.');

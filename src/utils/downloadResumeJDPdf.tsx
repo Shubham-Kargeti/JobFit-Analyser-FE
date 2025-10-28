@@ -10,12 +10,10 @@ export type CourseRecommendation = {
   objective: string;
 };
 
-/**
- * PDF export for the resume result page that overlays clickable links for "Go to Course" buttons.
- */
 export async function downloadResultWithCourseLinksPDF(
   resultRef: HTMLElement,
-  courseRecommendations: CourseRecommendation[]
+  courseRecommendations: CourseRecommendation[],
+  fileName: string = 'analysis-result.pdf'
 ) {
   const canvas = await html2canvas(resultRef, { scale: 2 });
   const imgData = canvas.toDataURL('image/jpeg', 1);
@@ -43,5 +41,5 @@ export async function downloadResultWithCourseLinksPDF(
     }
   });
 
-  pdf.save('analysis-result.pdf');
+  pdf.save(fileName);
 }

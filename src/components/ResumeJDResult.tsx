@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect } from "react";
+import React, { useRef, useState} from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { downloadResultWithCourseLinksPDF } from '../utils/downloadResumeJDPdf'
 import "../styles/Result.css";
@@ -77,13 +77,8 @@ const ResumeJDResult: React.FC = () => {
   const [showTechnical, setShowTechnical] = useState(false);
   const [forceShowTechnical, setForceShowTechnical] = useState(false);
   const [pdfMode, setPdfMode] = useState(false);
-
   const resultData = location.state?.resultData || {};
-
-  useEffect(() => {
-    console.log("Result Data:", resultData);
-  }, [resultData]);
-
+  const resumeFileName = resultData.Resume_Filename || "analysis-result";
   const handleBackToHome = () => navigate("/");
 
   const handleDownloadPDF = () => {
@@ -91,9 +86,11 @@ const ResumeJDResult: React.FC = () => {
     setForceShowTechnical(true);
     setTimeout(async () => {
       if (resultRef.current) {
+        const pdfFileName = `${resumeFileName} Result Analysis.pdf`;
         await downloadResultWithCourseLinksPDF(
           resultRef.current,
-          courseRecommendations
+          courseRecommendations,
+          pdfFileName  
         );
       }
       setTimeout(() => {
@@ -102,6 +99,8 @@ const ResumeJDResult: React.FC = () => {
       }, 500);
     }, 0);
   };
+
+
 
   if (!resultData) {
     return (
