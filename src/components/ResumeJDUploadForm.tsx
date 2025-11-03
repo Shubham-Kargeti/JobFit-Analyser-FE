@@ -9,13 +9,18 @@ const UploadForm: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
+  const apiUrl = import.meta.env.VITE_API_URL;
+
   const uploadFile = async (endpoint: string, file: File) => {
     const formData = new FormData();
     formData.append('file', file);
-    return axios.post(`http://localhost:8000/${endpoint}`, formData, {
+
+
+    return axios.post(`${apiUrl}/${endpoint}`, formData, {
       headers: { 'Content-Type': 'multipart/form-data' },
     });
   };
+  
 
   const handleProcess = async () => {
     if (!jdFile || !resumeFile) {
@@ -26,7 +31,8 @@ const UploadForm: React.FC = () => {
     try {
       await uploadFile('jd/upload/jd_resume_match', jdFile);
       await uploadFile('resume/upload/', resumeFile);
-      const response = await axios.get('http://localhost:8000/process/process/jd_resume_match');
+
+      const response = await axios.get(`${apiUrl}/process/process/jd_resume_match`);
       const resultData = typeof response.data === 'string' ? JSON.parse(response.data) : response.data;
       navigate('/result', { state: { resultData } });
     } catch (error: any) {

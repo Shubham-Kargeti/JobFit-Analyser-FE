@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import '../styles/UploadForm.css';
 
+const apiUrl = import.meta.env.VITE_API_URL;
+
 const JDUploadForm: React.FC = () => {
   const [jdFile, setJdFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
@@ -11,7 +13,8 @@ const JDUploadForm: React.FC = () => {
   const uploadFile = async (endpoint: string, file: File) => {
     const formData = new FormData();
     formData.append('file', file);
-    return axios.post(`http://localhost:8000/${endpoint}`, formData, {
+
+    return axios.post(`${apiUrl}/${endpoint}`, formData, {
       headers: { 'Content-Type': 'multipart/form-data' },
     });
   };
@@ -24,7 +27,9 @@ const JDUploadForm: React.FC = () => {
     setLoading(true);
     try {
       await uploadFile('jd/upload/analyze_jd', jdFile);
-      const response = await axios.get('http://localhost:8000/process/process/analyze_jd/');
+
+      const response = await axios.get(`${apiUrl}/process/process/analyze_jd/`);
+
       const resultData = typeof response.data === 'string' ? JSON.parse(response.data) : response.data;
       navigate('/jd-result', { state: { resultData } });
     } catch (error: any) {
